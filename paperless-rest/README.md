@@ -2,7 +2,7 @@
 
 REST-Service zum Verwalten von **Dokument-Metadaten** (Dateiname, MIME-Typ, Größe).
 
-## Start (Docker)
+## Start
 ```bash
 docker compose build
 docker compose up
