@@ -1,6 +1,6 @@
 services:
   app:
-    build: .\paperless-rest
+    build: ./paperless-rest
     ports:
       - "8081:8081"
     environment:
