@@ -8,13 +8,13 @@ import java.util.List;
 
 public interface DocService {
 
-    Document create(CreateDocRequest req);
+    Document create(Document req);
 
     Document get(long id);
 
     List<Document> search(String title);
 
-    Document update (long id, UpdateDocRequest req);
+    Document update (long id, Document req);
 
     void delete(long id);
 }

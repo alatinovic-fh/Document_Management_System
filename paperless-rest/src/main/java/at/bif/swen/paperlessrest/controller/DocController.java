@@ -28,7 +28,8 @@ public class DocController {
 
     @PostMapping
     public ResponseEntity<DocDto> addDocument(@Valid @RequestBody CreateDocRequest req) {
-        Document saved = docDetailService.create(req);
+        Document toSave = docMapper.fromCreateDtoToEntity(req);
+        Document saved = docDetailService.create(toSave);
         DocDto body = docMapper.toDto(saved);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -54,7 +55,9 @@ public class DocController {
     @PatchMapping("/{id}")
     public ResponseEntity<DocDto> updateDocument(@PathVariable @Positive long id,
                                                  @Valid @RequestBody UpdateDocRequest req) {
-        DocDto body = docMapper.toDto(docDetailService.update(id, req));
+
+        Document updated = docDetailService.update(id, docMapper.fromUpdateDtoToEntity(req));
+        DocDto body = docMapper.toDto(updated);
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(body);

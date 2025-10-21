@@ -18,12 +18,8 @@ public class DocDetailService implements DocService {
     private final DocRepository docRepository;
 
     @Transactional
-    public Document create(CreateDocRequest req) {
-        Document d = new Document();
-        d.setOriginalFilename(req.getOriginalFilename());
-        d.setContentType(req.getContentType());
-        d.setSize(req.getSize());
-        return docRepository.save(d);
+    public Document create(Document document) {
+        return docRepository.save(document);
     }
 
     public Document get(long id) {
@@ -34,10 +30,10 @@ public class DocDetailService implements DocService {
     public List<Document> list() { return docRepository.findAll(); }
 
     @Transactional
-    public Document update(long id, UpdateDocRequest req) {
-        Document d = get(id);
-        d.setOriginalFilename(req.getOriginalFilename());
-        return docRepository.save(d);
+    public Document update(long id, Document updateDocument) {
+        Document toUpdate = this.get(id);
+        toUpdate.setOriginalFilename(updateDocument.getOriginalFilename());
+        return docRepository.save(toUpdate);
     }
 
     @Transactional
