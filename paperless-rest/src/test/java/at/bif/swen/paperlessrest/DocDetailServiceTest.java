@@ -35,18 +35,13 @@ public class DocDetailServiceTest {
 
     @Test
     void create_ShouldSaveAndReturnDocument() {
-        // given
-        CreateDocRequest req = new CreateDocRequest();
-        req.setOriginalFilename("test.pdf");
-        req.setContentType("application/pdf");
-        req.setSize(1234L);
+        // give
+        Document mockToSave = new Document(1L, "test.pdf", "application/pdf", 1234L, java.sql.Date.valueOf("2021-01-01"));
 
-        Document mockSaved = new Document(1L, "test.pdf", "application/pdf", 1234L, java.sql.Date.valueOf("2021-01-01"));
-
-        when(docRepository.save(any(Document.class))).thenReturn(mockSaved);
+        when(docRepository.save(any(Document.class))).thenReturn(mockToSave);
 
         // when
-        Document result = docDetailService.create(req);
+        Document result = docDetailService.create(mockToSave);
 
         // then
         assertThat(result).isNotNull();
@@ -92,13 +87,13 @@ public class DocDetailServiceTest {
     @Test
     void update_ShouldModifyAndSaveDocument() {
         Document existing = new Document(1L, "old.pdf", "application/pdf", 123L, java.sql.Date.valueOf("2021-01-01"));
-        UpdateDocRequest req = new UpdateDocRequest();
-        req.setOriginalFilename("new.pdf");
+        Document updatedDocument = new Document();
+        updatedDocument.setOriginalFilename("new.pdf");
 
         when(docRepository.findById(1L)).thenReturn(Optional.of(existing));
         when(docRepository.save(any(Document.class))).thenAnswer(i -> i.getArgument(0));
 
-        Document updated = docDetailService.update(1L, req);
+        Document updated = docDetailService.update(1, updatedDocument);
 
         assertThat(updated.getOriginalFilename()).isEqualTo("new.pdf");
         verify(docRepository).save(existing);
