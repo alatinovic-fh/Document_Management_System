@@ -9,3 +9,13 @@ export async function getDocument(id) {
     const res = await apiClient.get(`/documents/${id}`);
     return res.data;
 }
+
+export async function listDocuments() {
+    const res = await apiClient.get(`/documents`)
+    return res.data
+}
+
+export async function deleteDocument(id) {
+  const response = await apiClient.delete(`/documents/${id}`);
+  return response.data;
+}
