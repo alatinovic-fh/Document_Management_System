@@ -19,17 +19,6 @@
           </div>
         </n-layout-header>
 
-
-  <div class="p-8 bg-blue-100 rounded-xl">
-    <h1 class="text-3xl font-bold text-blue-700">
-      Tailwind funktioniert 🎉
-    </h1>
-    <p class="mt-2 text-gray-600">
-      Wenn du diesen Text blau hinterlegt siehst, ist Tailwind aktiv.
-    </p>
-  </div>
-
-
         <n-layout-content content-style="padding: 2rem;">
           <router-view />
         </n-layout-content>
