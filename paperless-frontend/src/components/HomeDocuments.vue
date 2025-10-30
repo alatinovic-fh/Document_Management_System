@@ -39,7 +39,7 @@
           <n-space vertical size="small">
             <n-tag type="info" size="small">{{ doc.contentType || 'unbekannt' }}</n-tag>
             <n-text depth="3">Größe: {{ formatBytes(doc.size) }}</n-text>
-            <n-text depth="3">Erstellt: {{ formatDate(doc.createdAt) }}</n-text>
+            <n-text depth="3">Erstellt: {{ doc.uploadDate }}</n-text>
           </n-space>
 
           <!-- Footer (optional Öffnen-Button, wenn du eine URL hast) -->
@@ -95,6 +95,7 @@ async function fetchDocuments () {
   loading.value = true
   try {
     documents.value = await listDocuments()
+    console.log(documents)
   } catch (e) {
     console.error(e)
     message.error(e?.message || 'Fehler beim Laden der Dokumente')

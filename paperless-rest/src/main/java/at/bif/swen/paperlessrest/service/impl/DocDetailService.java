@@ -11,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.sql.Date;
+
 
 @Service
 @RequiredArgsConstructor
@@ -19,6 +21,7 @@ public class DocDetailService implements DocService {
 
     @Transactional
     public Document create(Document document) {
+        document.setUploadDate(new Date(System.currentTimeMillis()));
         return docRepository.save(document);
     }
 
