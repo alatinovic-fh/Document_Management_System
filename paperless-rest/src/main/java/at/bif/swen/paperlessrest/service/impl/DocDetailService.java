@@ -21,7 +21,6 @@ public class DocDetailService implements DocService {
 
     @Transactional
     public Document create(Document document) {
-        document.setUploadDate(new Date(System.currentTimeMillis()));
         return docRepository.save(document);
     }
 
