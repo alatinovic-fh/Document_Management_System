@@ -85,6 +85,7 @@ async function customRequest ({ file }) {
   try {
     const formData = new FormData()
     formData.append('file', file.file)
+    console.log(formData)
 
     response.value = await createDocument(formData)
     window.$message?.success('Upload erfolgreich!')

@@ -14,8 +14,23 @@
         <n-card size="small" hoverable>
           <!-- Kopf: Titel links, Actions rechts -->
           <div class="card-head">
-            <div class="title">{{ doc.originalFilename }}</div>
+            <div class="title" >{{ doc.originalFilename }}</div>
             <div class="actions">
+              <n-tooltip trigger="hover">
+                <template #trigger>
+                  <n-button
+                    quaternary
+                    circle
+                    size = "small"
+                    @click="onClickEdit(doc)"
+                    >
+                    <n-icon>
+                      <create-outline />
+                    </n-icon>
+                  </n-button>
+                </template>
+                edit
+              </n-tooltip>
               <n-tooltip trigger="hover">
                 <template #trigger>
                   <n-button
@@ -64,6 +79,22 @@
       class="mt-4"
     />
   </n-card>
+  <n-modal
+      v-model:show="showEditModal"
+      preset="dialog"
+      title="Dokument bearbeiten"
+      positive-text="Speichern"
+      negative-text="Abbrechen"
+      @positive-click="saveEdit"
+      @negative-click="showEditModal = false"
+  >
+    <n-space vertical size="large">
+      <div>
+        <n-text strong>Neuer Name:</n-text>
+        <n-input v-model:value="newName" placeholder="Dokumentname" />
+      </div>
+    </n-space>
+  </n-modal>
 </template>
 
 <script setup>
@@ -73,14 +104,19 @@ import {
   NTooltip, NIcon, useDialog, useMessage
 } from 'naive-ui'
 import { TrashOutline as TrashOutline } from '@vicons/ionicons5'
-import { listDocuments, deleteDocument } from '@/api/documents.js'
+import CreateOutline from '@vicons/ionicons5/CreateOutline'
+import {listDocuments, deleteDocument, updateDocument} from '@/api/documents.js'
 
 const loading = ref(false)
 const documents = ref([])
 const deletingId = ref(null)
+const editingDoc = ref(null)
+const newName = ref('')
 
 const dialog = useDialog()
 const message = useMessage()
+
+const showEditModal = ref(false)
 
 // simple Breakpoints
 const gridCols = computed(() => {
@@ -127,7 +163,27 @@ function onClickDelete (doc) {
   })
 }
 
-// Utils
+function onClickEdit (doc) {
+  editingDoc.value = doc
+  newName.value = doc.originalFileName
+  showEditModal.value = true
+}
+
+async function saveEdit() {
+  if (!newName.value) {
+    message.error('Bitte geben Sie einen Namen ein.')
+    return
+  }
+  try {
+    await updateDocument(editingDoc.value.id, editingDoc.value)
+    editingDoc.value.originalFilename = newName.value
+    showEditModal.value = false
+
+  } catch (e) {
+    console.error(e)
+  }
+}
+
 function formatBytes (n) {
   if (n == null) return '—'
   const units = ['B','KB','MB','GB','TB']
@@ -135,6 +191,7 @@ function formatBytes (n) {
   while (v >= 1024 && i < units.length - 1) { v /= 1024; i++ }
   return `${v.toFixed(v < 10 && i > 0 ? 1 : 0)} ${units[i]}`
 }
+
 function formatDate (s) {
   if (!s) return '—'
   try { return new Date(s).toLocaleString() } catch { return s }
@@ -153,13 +210,26 @@ onMounted(fetchDocuments)
   align-items: center;
   justify-content: space-between;
   margin-bottom: .5rem;
+  overflow: hidden;
 }
 .title {
   font-weight: 600;
   line-height: 1.2;
+  max-width: 70%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .actions {
   display: flex;
   gap: .25rem;
 }
+
+:deep(.n-tag) {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+
 </style>
