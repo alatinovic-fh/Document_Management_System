@@ -1,6 +1,7 @@
 services:
   app:
     build: ./paperless-rest
+    container_name: app
     ports:
       - "8081:8081"
     environment:
@@ -20,7 +21,19 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql
+
+
+  frontend:
+    build: ./paperless-frontend
+    container_name: paperless-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - app
+    restart: unless-stopped
+
+
 volumes:
   pgdata: {}
       

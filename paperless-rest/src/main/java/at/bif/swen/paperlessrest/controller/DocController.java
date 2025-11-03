@@ -14,7 +14,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -27,14 +29,25 @@ public class DocController {
     private final DocMapper docMapper;
 
     @PostMapping
-    public ResponseEntity<DocDto> addDocument(@Valid @RequestBody CreateDocRequest req) {
-        Document toSave = docMapper.fromCreateDtoToEntity(req);
+    public ResponseEntity<DocDto> addDocument(@RequestPart("file") MultipartFile file) throws IOException {
+        if (file == null || file.isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        Document toSave = new Document();
+        toSave.setOriginalFilename(file.getOriginalFilename());
+        toSave.setContentType(file.getContentType());
+        toSave.setSize(file.getSize());
+        toSave.setUploadDate(new java.sql.Date(System.currentTimeMillis()));
+
         Document saved = docDetailService.create(toSave);
         DocDto body = docMapper.toDto(saved);
-        return ResponseEntity.status(HttpStatus.CREATED)
+
+        return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(body);
     }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<DocDto> getDocument(@PathVariable @Positive long id) {
