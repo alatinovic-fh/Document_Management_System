@@ -1,16 +1,49 @@
+version: "3.9"
+
 services:
   app:
     build: ./paperless-rest
-    container_name: app
+    container_name: paperless-rest
     ports:
       - "8081:8081"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/metadb
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
-      restart: unless-stopped
+
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: guest
+      SPRING_RABBITMQ_PASSWORD: guest
     depends_on:
       - db
+      - rabbitmq
+    restart: unless-stopped
+
+  ocr-worker:
+    build: ./paperless-ocr
+    container_name: paperless-ocr
+    environment:
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: guest
+      SPRING_RABBITMQ_PASSWORD: guest
+      
+    depends_on:
+      - rabbitmq
+    restart: unless-stopped
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"    # AMQP
+      - "15672:15672"  # Management-UI http://localhost:15672
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    restart: unless-stopped
+
   db:
     image: postgres
     container_name: metadb
@@ -21,8 +54,8 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - pgdata:/var/lib/postgresql
-
+      - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
 
   frontend:
     build: ./paperless-frontend
@@ -33,7 +66,5 @@ services:
       - app
     restart: unless-stopped
 
-
 volumes:
   pgdata: {}
-      
