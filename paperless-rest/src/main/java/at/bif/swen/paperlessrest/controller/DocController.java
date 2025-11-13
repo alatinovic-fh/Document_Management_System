@@ -40,7 +40,7 @@ public class DocController {
         toSave.setSize(file.getSize());
         toSave.setUploadDate(new java.sql.Date(System.currentTimeMillis()));
 
-        Document saved = docDetailService.create(toSave);
+        Document saved = docDetailService.create(toSave, file.getBytes());
         DocDto body = docMapper.toDto(saved);
 
         return ResponseEntity.ok()

@@ -6,6 +6,7 @@ import at.bif.swen.paperlessrest.persistence.entity.Document;
 import at.bif.swen.paperlessrest.persistence.repository.DocRepository;
 import at.bif.swen.paperlessrest.service.DocService;
 import at.bif.swen.paperlessrest.service.exception.NotFoundException;
+import at.bif.swen.paperlessrest.service.messaging.OcrJobPublisher;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,10 +19,14 @@ import java.sql.Date;
 @RequiredArgsConstructor
 public class DocDetailService implements DocService {
     private final DocRepository docRepository;
+    private final OcrJobPublisher ocrJobPublisher;
 
     @Transactional
-    public Document create(Document document) {
-        return docRepository.save(document);
+    public Document create(Document document, byte[] content) {
+        Document saved = docRepository.save(document);
+        ocrJobPublisher.sendOcrJob(saved, content);
+
+        return saved;
     }
 
     public Document get(long id) {
