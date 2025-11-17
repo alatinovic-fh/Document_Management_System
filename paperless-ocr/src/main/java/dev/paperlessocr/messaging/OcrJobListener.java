@@ -17,7 +17,7 @@ public class OcrJobListener {
     @RabbitListener(queues = OCR_JOB_QUEUE)
     public void handleOcrJob(OcrJobMessage msg) {
 
-        log.info("📥 OCR-Job empfangen: documentId={}, filename={}, bytes={}",
+        log.info("OCR-Job empfangen: documentId={}, filename={}, bytes={}",
                 msg.getDocumentId(),
                 msg.getOriginalFilename(),
                 msg.getContent() != null ? msg.getContent().length : 0
@@ -37,6 +37,6 @@ public class OcrJobListener {
         // Ergebnis zurück an RESULT_QUEUE schicken
         resultPublisher.sendResult(result);
 
-        log.info("📤 OCR-Resultat versendet für documentId={}", msg.getDocumentId());
+        log.info("OCR-Resultat versendet für documentId={}", msg.getDocumentId());
     }
 }
