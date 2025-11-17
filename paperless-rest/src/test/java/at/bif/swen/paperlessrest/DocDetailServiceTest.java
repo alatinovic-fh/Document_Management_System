@@ -41,7 +41,7 @@ public class DocDetailServiceTest {
         when(docRepository.save(any(Document.class))).thenReturn(mockToSave);
 
         // when
-        Document result = docDetailService.create(mockToSave);
+        Document result = docDetailService.create(mockToSave, new byte[2]);
 
         // then
         assertThat(result).isNotNull();

@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface DocService {
 
-    Document create(Document req);
+    Document create(Document req, byte[] content);
 
     Document get(long id);
 
