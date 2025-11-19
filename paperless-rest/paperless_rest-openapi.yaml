@@ -1,73 +1,91 @@
-openapi: "3.1.0"
+openapi: 3.0.1
 info:
-  title: "paperless_rest API"
-  description: "paperless_rest API"
-  version: "1.0.0"
+  title: OpenAPI definition
+  version: v0
 servers:
-  - url: "https://paperless_rest"
+- url: http://localhost:8081
+  description: Generated server url
 paths:
   /api/v1/documents:
+    get:
+      tags:
+      - doc-controller
+      operationId: listAllDocuments
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DocDto"
     post:
-      summary: "POST api/v1/documents"
-      operationId: "addDocument"
+      tags:
+      - doc-controller
+      operationId: addDocument
       requestBody:
         content:
           application/json:
             schema:
-              type: "object"
               required:
-                - "file"
+              - file
+              type: object
               properties:
                 file:
-                  type: "string"
-                  format: "binary"
+                  type: string
+                  format: binary
       responses:
         "200":
-          description: "OK"
+          description: OK
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/DocDto"
-    get:
-      summary: "GET api/v1/documents"
-      operationId: "listAllDocuments"
-      responses:
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                type: "array"
-                items:
-                  $ref: "#/components/schemas/DocDto"
   /api/v1/documents/{id}:
     get:
-      summary: "GET api/v1/documents/{id}"
-      operationId: "getDocument"
+      tags:
+      - doc-controller
+      operationId: getDocument
       parameters:
-        - name: "id"
-          in: "path"
-          required: true
-          schema:
-            type: "integer"
-            format: "int64"
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
       responses:
         "200":
-          description: "OK"
+          description: OK
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/DocDto"
-    patch:
-      summary: "PATCH api/v1/documents/{id}"
-      operationId: "updateDocument"
+    delete:
+      tags:
+      - doc-controller
+      operationId: deleteDocument
       parameters:
-        - name: "id"
-          in: "path"
-          required: true
-          schema:
-            type: "integer"
-            format: "int64"
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+    patch:
+      tags:
+      - doc-controller
+      operationId: updateDocument
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
       requestBody:
         content:
           application/json:
@@ -76,72 +94,53 @@ paths:
         required: true
       responses:
         "200":
-          description: "OK"
+          description: OK
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/DocDto"
-    delete:
-      summary: "DELETE api/v1/documents/{id}"
-      operationId: "deleteDocument"
-      parameters:
-        - name: "id"
-          in: "path"
-          required: true
-          schema:
-            type: "integer"
-            format: "int64"
-      responses:
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/Void"
   /api/v1/documents/search/{searchText}:
     get:
-      summary: "GET api/v1/documents/search/{searchText}"
-      operationId: "searchDocuments"
+      tags:
+      - doc-controller
+      operationId: searchDocuments
       parameters:
-        - name: "searchText"
-          in: "path"
-          required: true
-          schema:
-            type: "string"
+      - name: searchText
+        in: path
+        required: true
+        schema:
+          type: string
       responses:
         "200":
-          description: "OK"
+          description: OK
           content:
             '*/*':
               schema:
-                type: "array"
+                type: array
                 items:
                   $ref: "#/components/schemas/DocDto"
 components:
   schemas:
-    Date:
-      type: "object"
-      properties: { }
     DocDto:
-      type: "object"
+      type: object
       properties:
         id:
-          type: "integer"
-          format: "int64"
+          type: integer
+          format: int64
         originalFilename:
-          type: "string"
+          type: string
         contentType:
-          type: "string"
+          type: string
         size:
-          type: "integer"
-          format: "int64"
+          type: integer
+          format: int64
         uploadDate:
-          $ref: "#/components/schemas/Date"
+          type: string
+          format: date-time
     UpdateDocRequest:
-      type: "object"
+      required:
+      - originalFilename
+      type: object
       properties:
         originalFilename:
-          type: "string"
-    Void:
-      type: "object"
-      properties: { }
+          type: string
