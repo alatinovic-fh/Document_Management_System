@@ -20,10 +20,13 @@ import java.sql.Date;
 public class DocDetailService implements DocService {
     private final DocRepository docRepository;
     private final OcrJobPublisher ocrJobPublisher;
+    private final FileStorageService fileStorageService;
 
     @Transactional
     public Document create(Document document, byte[] content) {
         Document saved = docRepository.save(document);
+
+        fileStorageService.upload(saved.getOriginalFilename(), content);
         ocrJobPublisher.sendOcrJob(saved, content);
 
         return saved;
