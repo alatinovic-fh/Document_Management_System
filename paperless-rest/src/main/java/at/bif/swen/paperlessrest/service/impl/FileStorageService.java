@@ -3,11 +3,9 @@ package at.bif.swen.paperlessrest.service.impl;
 
 import at.bif.swen.paperlessrest.config.MinIOConfig;
 import at.bif.swen.paperlessrest.service.FileStorage;
-import io.minio.BucketExistsArgs;
-import io.minio.MakeBucketArgs;
-import io.minio.MinioClient;
-import io.minio.PutObjectArgs;
+import io.minio.*;
 import io.minio.errors.MinioException;
+import jakarta.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -56,10 +54,52 @@ public class FileStorageService implements FileStorage {
                             .build()
             );
 
+
+
+
+
+
         }catch(MinioException e) {
             System.out.println("Error occurred: " + e);
             System.out.println("Http trace" + e.httpTrace());
         }catch(IOException | NoSuchAlgorithmException | InvalidKeyException e){
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void delete(String filename){
+
+        try{
+            minioClient.removeObject(
+                    RemoveObjectArgs.builder()
+                            .bucket(minIOConfig.getBucketName())
+                            .object(filename)
+                            .build()
+            );
+        }catch(MinioException e){
+            System.out.println("Error occurred: " + e);
+        } catch (IOException | NoSuchAlgorithmException | InvalidKeyException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+
+    public void rename(String oldFilename, String newFilename){
+        try{
+            minioClient.copyObject(
+                    CopyObjectArgs.builder()
+                            .bucket(minIOConfig.getBucketName())
+                            .object(oldFilename)
+                            .build()
+            );
+
+            delete(oldFilename);
+
+        }catch(MinioException e){
+            System.out.println("Error occurred: " + e);
+        } catch (IOException | NoSuchAlgorithmException | InvalidKeyException e) {
             throw new RuntimeException(e);
         }
     }
