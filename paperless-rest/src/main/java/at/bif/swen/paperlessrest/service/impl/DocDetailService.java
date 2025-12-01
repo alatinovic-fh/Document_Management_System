@@ -9,12 +9,13 @@ import at.bif.swen.paperlessrest.service.exception.NotFoundException;
 import at.bif.swen.paperlessrest.service.messaging.OcrJobPublisher;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.sql.Date;
 
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class DocDetailService implements DocService {
@@ -27,6 +28,7 @@ public class DocDetailService implements DocService {
         Document saved = docRepository.save(document);
 
         fileStorageService.upload(saved.getOriginalFilename(), content);
+        System.out.println(saved.getOriginalFilename());
         ocrJobPublisher.sendOcrJob(saved, content);
 
         return saved;
@@ -42,7 +44,13 @@ public class DocDetailService implements DocService {
     @Transactional
     public Document update(long id, Document updateDocument) {
         Document toUpdate = this.get(id);
+
+        log.info("Updated document: {}", toUpdate);
+
+        fileStorageService.rename(toUpdate.getOriginalFilename(), updateDocument.getOriginalFilename());
         toUpdate.setOriginalFilename(updateDocument.getOriginalFilename());
+
+
         return docRepository.save(toUpdate);
     }
 
@@ -51,7 +59,10 @@ public class DocDetailService implements DocService {
         if (!docRepository.existsById(id)) {
             throw new NotFoundException("Document " + id + " not found");
         }
+        String filename = docRepository.findById(id).get().getOriginalFilename();
+        fileStorageService.delete(filename);
         docRepository.deleteById(id);
+
     }
 
     /**

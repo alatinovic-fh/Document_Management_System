@@ -15,9 +15,11 @@ services:
       SPRING_RABBITMQ_PORT: 5672
       SPRING_RABBITMQ_USERNAME: guest
       SPRING_RABBITMQ_PASSWORD: guest
+
     depends_on:
       - db
       - rabbitmq
+      - minio
     restart: unless-stopped
 
   ocr-worker:
@@ -54,7 +56,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql
     restart: unless-stopped
 
   frontend:

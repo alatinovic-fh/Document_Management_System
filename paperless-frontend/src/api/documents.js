@@ -17,10 +17,12 @@ export async function listDocuments() {
 
 export async function deleteDocument(id) {
   const response = await apiClient.delete(`/documents/${id}`);
+  console.log("data deleted");
   return response.data;
 }
 
 export async function updateDocument(id, doc) {
     const response = await apiClient.patch(`/documents/${id}`, doc);
+    console.log(response);
     return response.data;
 }

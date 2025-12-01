@@ -85,15 +85,22 @@ public class FileStorageService implements FileStorage {
     @Override
     public void rename(String oldFilename, String newFilename) {
         try {
+            CopySource source = CopySource.builder()
+                    .bucket(minIOConfig.getBucketName())
+                    .object(oldFilename)
+                    .build();
+
+
             minioClient.copyObject(
                     CopyObjectArgs.builder()
                             .bucket(minIOConfig.getBucketName())
-                            .object(oldFilename)
+                            .object(newFilename)
+                            .source(source)
                             .build()
             );
 
-            delete(oldFilename);
 
+            delete(oldFilename);
         } catch (MinioException e) {
             System.out.println("Error occurred: " + e);
         } catch (IOException | NoSuchAlgorithmException | InvalidKeyException e) {

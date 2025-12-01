@@ -165,7 +165,7 @@ function onClickDelete (doc) {
 
 function onClickEdit (doc) {
   editingDoc.value = doc
-  newName.value = doc.originalFileName
+  newName.value = doc.originalFilename
   showEditModal.value = true
 }
 
@@ -175,7 +175,11 @@ async function saveEdit() {
     return
   }
   try {
-    await updateDocument(editingDoc.value.id, editingDoc.value)
+
+    const updatedDoc = {originalFilename: newName.value }
+    console.log(updatedDoc)
+
+    await updateDocument(editingDoc.value.id, updatedDoc)
     editingDoc.value.originalFilename = newName.value
     showEditModal.value = false
 
