@@ -57,6 +57,20 @@ public class DocController {
                 .body(body);
     }
 
+    @GetMapping("/download/{id}")
+    public ResponseEntity<byte[]> downloadDocument(@PathVariable @Positive long id) {
+        DocDto body = docMapper.toDto(docDetailService.get(id));
+        String filename = body.getOriginalFilename();
+        byte[] fileData = docDetailService.download(id);
+
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .header("Content-Disposition", "attachment; filename=\"" + filename + "\"")
+                .body(fileData);
+    }
+
+
     @GetMapping
     public ResponseEntity<List<DocDto>> listAllDocuments() {
         List<DocDto> body = docMapper.toDtoList(docDetailService.list());

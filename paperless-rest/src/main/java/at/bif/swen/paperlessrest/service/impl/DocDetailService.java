@@ -64,5 +64,10 @@ public class DocDetailService implements DocService {
     public List<Document> search(String text) {
         return null;
     }
+
+    public byte[] download(long id) {
+        Document doc = docRepository.findById(id).orElseThrow(() -> new NotFoundException("Document not found: " + id));
+        return fileStorageService.download(doc.getOriginalFilename());
+    }
 }
 

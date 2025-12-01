@@ -17,4 +17,6 @@ public interface DocService {
     Document update (long id, Document req);
 
     void delete(long id);
+
+    byte[] download(long id);
 }
