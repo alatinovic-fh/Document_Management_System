@@ -26,3 +26,5 @@ export async function updateDocument(id, doc) {
     console.log(response);
     return response.data;
 }
+
+

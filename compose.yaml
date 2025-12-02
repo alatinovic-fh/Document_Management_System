@@ -32,6 +32,7 @@ services:
       SPRING_RABBITMQ_PASSWORD: guest
       
     depends_on:
+      - minio
       - rabbitmq
     restart: unless-stopped
 
