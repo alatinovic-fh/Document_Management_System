@@ -6,6 +6,7 @@ import at.bif.swen.paperlessrest.service.FileStorage;
 import io.minio.*;
 import io.minio.errors.*;
 import jakarta.validation.constraints.Min;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
 @Service
+@Slf4j
 public class FileStorageService implements FileStorage {
     private final MinIOConfig minIOConfig;
     private final MinioClient minioClient;
@@ -57,8 +59,8 @@ public class FileStorageService implements FileStorage {
 
 
         } catch (MinioException e) {
-            System.out.println("Error occurred: " + e);
-            System.out.println("Http trace" + e.httpTrace());
+            log.error("Error occurred: " + e);
+            log.error("Http trace" + e.httpTrace());
         } catch (IOException | NoSuchAlgorithmException | InvalidKeyException e) {
             throw new RuntimeException(e);
         }
@@ -75,7 +77,7 @@ public class FileStorageService implements FileStorage {
                             .build()
             );
         } catch (MinioException e) {
-            System.out.println("Error occurred: " + e);
+            log.error("Error occurred: " + e);
         } catch (IOException | NoSuchAlgorithmException | InvalidKeyException e) {
             throw new RuntimeException(e);
         }
@@ -102,7 +104,7 @@ public class FileStorageService implements FileStorage {
 
             delete(oldFilename);
         } catch (MinioException e) {
-            System.out.println("Error occurred: " + e);
+            log.error("Error occurred: " + e);
         } catch (IOException | NoSuchAlgorithmException | InvalidKeyException e) {
             throw new RuntimeException(e);
         }
