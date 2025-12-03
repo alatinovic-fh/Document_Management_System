@@ -5,6 +5,7 @@ import at.bif.swen.paperlessrest.controller.request.UpdateDocRequest;
 import at.bif.swen.paperlessrest.persistence.entity.Document;
 import at.bif.swen.paperlessrest.persistence.repository.DocRepository;
 import at.bif.swen.paperlessrest.service.DocService;
+import at.bif.swen.paperlessrest.service.exception.DuplicateDocumentNameException;
 import at.bif.swen.paperlessrest.service.exception.NotFoundException;
 import at.bif.swen.paperlessrest.service.messaging.OcrJobPublisher;
 import jakarta.transaction.Transactional;
@@ -25,6 +26,11 @@ public class DocDetailService implements DocService {
 
     @Transactional
     public Document create(Document document, byte[] content) {
+
+        if(docRepository.existsByOriginalFilename(document.getOriginalFilename())) {
+            throw new DuplicateDocumentNameException(document.getOriginalFilename());
+        }
+
         Document saved = docRepository.save(document);
 
         fileStorageService.upload(saved.getOriginalFilename(), content);
@@ -43,6 +49,13 @@ public class DocDetailService implements DocService {
 
     @Transactional
     public Document update(long id, Document updateDocument) {
+
+        if(docRepository.existsByOriginalFilename(updateDocument.getOriginalFilename())) {
+            log.info("Document with name {} already exists. Updating...", updateDocument.getOriginalFilename());
+            throw new DuplicateDocumentNameException(updateDocument.getOriginalFilename());
+
+        }
+
         Document toUpdate = this.get(id);
 
         log.info("Updated document: {}", toUpdate);

@@ -184,6 +184,8 @@ async function saveEdit() {
     showEditModal.value = false
 
   } catch (e) {
+    message.error('Fehler beim Speichern')
+    console.log("fehler beim Speichern")
     console.error(e)
   }
 }
