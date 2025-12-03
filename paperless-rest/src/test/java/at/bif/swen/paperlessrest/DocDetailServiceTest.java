@@ -6,6 +6,8 @@ import at.bif.swen.paperlessrest.persistence.entity.Document;
 import at.bif.swen.paperlessrest.persistence.repository.DocRepository;
 import at.bif.swen.paperlessrest.service.exception.NotFoundException;
 import at.bif.swen.paperlessrest.service.impl.DocDetailService;
+import at.bif.swen.paperlessrest.service.impl.FileStorageService;
+import at.bif.swen.paperlessrest.service.messaging.OcrJobPublisher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -25,6 +27,12 @@ public class DocDetailServiceTest {
     @Mock
     private DocRepository docRepository;
 
+    @Mock
+    private FileStorageService fileStorageService;
+
+    @Mock
+    private OcrJobPublisher ocrJobPublisher;
+
     @InjectMocks
     private DocDetailService docDetailService;
 
@@ -39,6 +47,9 @@ public class DocDetailServiceTest {
         Document mockToSave = new Document(1L, "test.pdf", "application/pdf", 1234L, java.sql.Date.valueOf("2021-01-01"));
 
         when(docRepository.save(any(Document.class))).thenReturn(mockToSave);
+
+        doNothing().when(fileStorageService).upload(anyString(), any());
+        doNothing().when(ocrJobPublisher).sendOcrJob(any(Document.class), any());
 
         // when
         Document result = docDetailService.create(mockToSave, new byte[2]);
@@ -102,6 +113,11 @@ public class DocDetailServiceTest {
     @Test
     void delete_ShouldCallRepositoryDelete_WhenExists() {
         when(docRepository.existsById(1L)).thenReturn(true);
+
+        Document doc = new Document(1L, "test.pdf", "application/pdf", 1234L, java.sql.Date.valueOf("2021-01-01"));
+        when(docRepository.findById(1L)).thenReturn(Optional.of(doc));
+
+
 
         docDetailService.delete(1L);
 

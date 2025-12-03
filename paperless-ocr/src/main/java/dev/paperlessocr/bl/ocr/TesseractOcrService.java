@@ -1,6 +1,7 @@
 package dev.paperlessocr.bl.ocr;
 
 import dev.paperlessocr.bl.OcrService;
+import dev.paperlessocr.bl.TesseractFactory;
 import net.sourceforge.tess4j.Tesseract;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,18 +15,16 @@ import java.io.InputStream;
 
 @Service
 public class TesseractOcrService implements OcrService {
-    private final String tesseractData;
+    private final TesseractFactory tesseractFactory;
 
     @Autowired
-    public TesseractOcrService(@Value("${tesseract.data}") String tessData) {
-        this.tesseractData = tessData;
+    public TesseractOcrService(TesseractFactory tesseractFactory) {
+        this.tesseractFactory = tesseractFactory;
     }
 
     @Override
     public String doOcr(File tempFile) throws Exception {
-        var tesseract = new Tesseract();
-        tesseract.setDatapath(tesseractData);
-        tesseract.setLanguage("eng");
+        Tesseract tesseract = tesseractFactory.create();
         return tesseract.doOCR(tempFile);
     }
 
