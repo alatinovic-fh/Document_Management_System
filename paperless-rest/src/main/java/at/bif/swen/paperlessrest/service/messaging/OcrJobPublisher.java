@@ -3,11 +3,13 @@ package at.bif.swen.paperlessrest.service.messaging;
 import at.bif.swen.paperlessrest.config.RabbitConfig;
 import at.bif.swen.paperlessrest.persistence.entity.Document;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class OcrJobPublisher {
 
     private final RabbitTemplate rabbitTemplate;
@@ -27,6 +29,6 @@ public class OcrJobPublisher {
                 msg
         );
 
-        System.out.println("📨 OCR-Job gesendet für Dokument " + doc.getId());
+        log.info("OCR-Job gesendet für Dokument " + doc.getId() + doc.getOriginalFilename());
     }
 }

@@ -47,6 +47,21 @@
                 </template>
                 Löschen
               </n-tooltip>
+              <n-tooltip trigger="hover">
+                <template #trigger>
+                  <n-button
+                      quaternary
+                      circle
+                      size="small"
+                      @click="onClickDownload(doc)"
+                  >
+                    <n-icon>
+                      <arrow-down-circle-sharp/>
+                    </n-icon>
+                  </n-button>
+                </template>
+                download
+              </n-tooltip>
             </div>
           </div>
 
@@ -105,7 +120,8 @@ import {
 } from 'naive-ui'
 import { TrashOutline as TrashOutline } from '@vicons/ionicons5'
 import CreateOutline from '@vicons/ionicons5/CreateOutline'
-import {listDocuments, deleteDocument, updateDocument} from '@/api/documents.js'
+import ArrowDownCircleSharp from '@vicons/ionicons5/ArrowDownCircleSharp'
+import {listDocuments, deleteDocument, updateDocument, downloadDocument} from '@/api/documents.js'
 
 const loading = ref(false)
 const documents = ref([])
@@ -163,9 +179,31 @@ function onClickDelete (doc) {
   })
 }
 
+
+async function onClickDownload(doc){
+  try {
+    const res = await downloadDocument(doc.id);
+
+    const blob = new Blob([res.data], { type: res.headers['content-type'] });
+    const downloadUrl = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = downloadUrl;
+    a.download = doc.originalFilename || 'download'; // optional
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    URL.revokeObjectURL(downloadUrl);
+  } catch (e) {
+    console.error("download didnt work", e);
+  } finally {
+    console.log("download done");
+  }
+}
 function onClickEdit (doc) {
   editingDoc.value = doc
-  newName.value = doc.originalFileName
+  newName.value = doc.originalFilename
   showEditModal.value = true
 }
 
@@ -175,11 +213,17 @@ async function saveEdit() {
     return
   }
   try {
-    await updateDocument(editingDoc.value.id, editingDoc.value)
+
+    const updatedDoc = {originalFilename: newName.value }
+    console.log(updatedDoc)
+
+    await updateDocument(editingDoc.value.id, updatedDoc)
     editingDoc.value.originalFilename = newName.value
     showEditModal.value = false
 
   } catch (e) {
+    message.error('Fehler beim Speichern')
+    console.log("fehler beim Speichern")
     console.error(e)
   }
 }

@@ -15,9 +15,11 @@ services:
       SPRING_RABBITMQ_PORT: 5672
       SPRING_RABBITMQ_USERNAME: guest
       SPRING_RABBITMQ_PASSWORD: guest
+
     depends_on:
       - db
       - rabbitmq
+      - minio
     restart: unless-stopped
 
   ocr-worker:
@@ -30,6 +32,7 @@ services:
       SPRING_RABBITMQ_PASSWORD: guest
       
     depends_on:
+      - minio
       - rabbitmq
     restart: unless-stopped
 
@@ -54,7 +57,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql
     restart: unless-stopped
 
   frontend:
@@ -66,5 +69,18 @@ services:
       - app
     restart: unless-stopped
 
+  minio:
+    image: minio/minio
+    environment:
+      MINIO_ROOT_USER: admin
+      MINIO_ROOT_PASSWORD: adminpassword
+    command: server /data --console-address ":9090"
+    ports:
+      - "9000:9000"
+      - "9090:9090"
+    volumes:
+      - minio-storage:/data
+
 volumes:
   pgdata: {}
+  minio-storage: {}
