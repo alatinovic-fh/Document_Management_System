@@ -29,6 +29,6 @@ public class OcrJobPublisher {
                 msg
         );
 
-        log.info("OCR-Job gesendet für Dokument " + doc.getId());
+        log.info("OCR-Job gesendet für Dokument " + doc.getId() + doc.getOriginalFilename());
     }
 }
