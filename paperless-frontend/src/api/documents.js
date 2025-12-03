@@ -28,3 +28,9 @@ export async function updateDocument(id, doc) {
 }
 
 
+export async function downloadDocument(id){
+    return apiClient.get(`/documents/download/${id}`,{responseType: 'blob'});
+
+}
+
+
