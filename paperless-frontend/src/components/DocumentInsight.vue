@@ -1,8 +1,8 @@
 <template>
   <n-card class="max-w-4xl mx-auto mt-8" title="📄 Dokument Details">
     <n-space vertical size="large" v-if="doc">
-      <n-text><strong>Name:</strong> {{ doc.originalFilename }}</n-text>
-      <n-text><strong>Typ:</strong> {{ getExtension(doc.originalFilename) }}</n-text>
+      <n-text><strong>Name:</strong> {{ doc.originalFilename || "untitled"}}</n-text>
+      <n-text><strong>Typ:</strong> {{ getExtension(doc.originalFilename) || "unknown" }}</n-text>
       <n-text><strong>Größe:</strong> {{ formatBytes(doc.size) }}</n-text>
       <n-text><strong>Erstellt:</strong> {{ formatDate(doc.uploadDate) }}</n-text>
 
