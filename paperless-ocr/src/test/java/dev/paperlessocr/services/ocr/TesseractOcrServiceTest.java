@@ -1,6 +1,7 @@
-package dev.paperlessocr.bl.ocr;
+package dev.paperlessocr.services.ocr;
 
-import dev.paperlessocr.bl.TesseractFactory;
+import dev.paperlessocr.services.TesseractFactory;
+import dev.paperlessocr.services.ocr.impl.TesseractOcrService;
 import net.sourceforge.tess4j.Tesseract;
 import org.junit.jupiter.api.Test;
 import org.springframework.util.StreamUtils;

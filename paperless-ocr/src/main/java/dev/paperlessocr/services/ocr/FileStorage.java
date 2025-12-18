@@ -1,4 +1,4 @@
-package dev.paperlessocr.bl;
+package dev.paperlessocr.services.ocr;
 
 import java.io.InputStream;
 

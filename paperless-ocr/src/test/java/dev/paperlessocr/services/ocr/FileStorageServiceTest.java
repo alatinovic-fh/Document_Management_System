@@ -1,6 +1,7 @@
-package dev.paperlessocr.bl.ocr;
+package dev.paperlessocr.services.ocr;
 
 import dev.paperlessocr.config.MinIOConfig;
+import dev.paperlessocr.services.ocr.impl.FileStorageService;
 import io.minio.GetObjectArgs;
 import io.minio.GetObjectResponse;
 import io.minio.MinioClient;

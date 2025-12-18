@@ -1,9 +1,12 @@
-package dev.paperlessocr.bl.ocr;
+package dev.paperlessocr.services.ocr;
 
 import dev.paperlessocr.messaging.OcrJobListener;
 import dev.paperlessocr.messaging.OcrJobMessage;
 import dev.paperlessocr.messaging.OcrResultMessage;
 import dev.paperlessocr.messaging.OcrResultPublisher;
+import dev.paperlessocr.services.genai.impl.GenAIDetailService;
+import dev.paperlessocr.services.ocr.impl.FileStorageService;
+import dev.paperlessocr.services.ocr.impl.TesseractOcrService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -19,6 +22,7 @@ public class OcrJobListenerTest {
     OcrResultPublisher resultPublisher;
     FileStorageService fileStorageService;
     TesseractOcrService tesseractOcrService;
+    GenAIDetailService genAIDetailService;
     OcrJobListener listener;
 
     @BeforeEach
@@ -26,8 +30,9 @@ public class OcrJobListenerTest {
         resultPublisher = mock(OcrResultPublisher.class);
         fileStorageService = mock(FileStorageService.class);
         tesseractOcrService = mock(TesseractOcrService.class);
+        genAIDetailService = mock(GenAIDetailService.class);
 
-        listener = new OcrJobListener(resultPublisher, fileStorageService, tesseractOcrService);
+        listener = new OcrJobListener(resultPublisher, fileStorageService, tesseractOcrService, genAIDetailService);
     }
 
     @Test

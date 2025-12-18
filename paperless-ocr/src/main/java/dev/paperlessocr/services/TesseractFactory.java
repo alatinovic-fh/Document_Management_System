@@ -1,4 +1,4 @@
-package dev.paperlessocr.bl;
+package dev.paperlessocr.services;
 
 import net.sourceforge.tess4j.Tesseract;
 import org.springframework.beans.factory.annotation.Value;
