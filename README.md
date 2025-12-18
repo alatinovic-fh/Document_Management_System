@@ -1,5 +1,12 @@
 # Document_Management_System (Latinovic, Korcian)
 
+## Setup
+Create a .env file in the root directory \
+**.env**
+```bash
+GEMINI_API_KEY=API-KEY
+```
+
 ## Startup
 ```bash
 docker compose build
