@@ -28,4 +28,7 @@ public class Document {
     private long size;
 
     private Date uploadDate;
+
+    @Column(columnDefinition = "TEXT")
+    private String summary;
 }

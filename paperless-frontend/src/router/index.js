@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import DocumentForm from '@/components/DocumentForm.vue'
 import HomeDocuments from '@/components/HomeDocuments.vue'
+import DocumentInsight from '@/components/DocumentInsight.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -18,6 +19,12 @@ const router = createRouter({
       path: '/create',
       name: 'CreateDocument',
       component: DocumentForm,
+    },
+    {
+      path: '/detail/:id',
+      name: 'DocumentInsight',
+      component: DocumentInsight,
+      props: true,
     },
   ],
 })

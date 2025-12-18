@@ -1,6 +1,6 @@
-package dev.paperlessocr.bl.ocr;
+package dev.paperlessocr.services.ocr.impl;
 
-import dev.paperlessocr.bl.FileStorage;
+import dev.paperlessocr.services.ocr.FileStorage;
 import dev.paperlessocr.config.MinIOConfig;
 import io.minio.GetObjectArgs;
 import io.minio.MinioClient;
@@ -19,7 +19,7 @@ public class FileStorageService  implements FileStorage {
 
 
     @Autowired
-    FileStorageService(MinIOConfig minIOConfig, MinioClient minioClient) {
+    public FileStorageService(MinIOConfig minIOConfig, MinioClient minioClient) {
         this.minIOConfig = minIOConfig;
         this.minioClient = minioClient;
     }

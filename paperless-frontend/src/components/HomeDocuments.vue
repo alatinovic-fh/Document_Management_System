@@ -11,7 +11,7 @@
 
       <!-- Dokument-Karten -->
       <n-grid-item v-for="doc in documents" :key="doc.id">
-        <n-card size="small" hoverable>
+        <n-card size="small" hoverable class="cursor-pointer" @click="goToDetail(doc)">
           <!-- Kopf: Titel links, Actions rechts -->
           <div class="card-head">
             <div class="title" >{{ doc.originalFilename }}</div>
@@ -22,7 +22,7 @@
                     quaternary
                     circle
                     size = "small"
-                    @click="onClickEdit(doc)"
+                    @click.stop="onClickEdit(doc)"
                     >
                     <n-icon>
                       <create-outline />
@@ -38,7 +38,7 @@
                     circle
                     size="small"
                     :loading="deletingId === doc.id"
-                    @click="onClickDelete(doc)"
+                    @click.stop="onClickDelete(doc)"
                   >
                     <n-icon>
                       <trash-outline />
@@ -53,7 +53,7 @@
                       quaternary
                       circle
                       size="small"
-                      @click="onClickDownload(doc)"
+                      @click.stop="onClickDownload(doc)"
                   >
                     <n-icon>
                       <arrow-down-circle-sharp/>
@@ -122,7 +122,9 @@ import { TrashOutline as TrashOutline } from '@vicons/ionicons5'
 import CreateOutline from '@vicons/ionicons5/CreateOutline'
 import ArrowDownCircleSharp from '@vicons/ionicons5/ArrowDownCircleSharp'
 import {listDocuments, deleteDocument, updateDocument, downloadDocument} from '@/api/documents.js'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const loading = ref(false)
 const documents = ref([])
 const deletingId = ref(null)
@@ -154,6 +156,10 @@ async function fetchDocuments () {
   } finally {
     loading.value = false
   }
+}
+
+function goToDetail(doc) {
+  router.push(`/detail/${doc.id}`)
 }
 
 function onClickDelete (doc) {

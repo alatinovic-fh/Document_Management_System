@@ -11,4 +11,5 @@ public class DocDto {
     private String contentType;
     private long size;
     private Date uploadDate;
+    private String summary;
 }

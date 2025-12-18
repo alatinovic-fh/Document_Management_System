@@ -12,4 +12,5 @@ public class OcrResultMessage {
     private String text;          // erkannter Text (jetzt hardcodiert)
     private boolean success;      // true/false
     private String errorMessage;  // falls success=false
+    private String summary; //GenAI summary
 }

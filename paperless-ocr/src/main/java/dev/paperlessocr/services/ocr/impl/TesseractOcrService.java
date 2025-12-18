@@ -1,10 +1,9 @@
-package dev.paperlessocr.bl.ocr;
+package dev.paperlessocr.services.ocr.impl;
 
-import dev.paperlessocr.bl.OcrService;
-import dev.paperlessocr.bl.TesseractFactory;
+import dev.paperlessocr.services.ocr.OcrService;
+import dev.paperlessocr.services.TesseractFactory;
 import net.sourceforge.tess4j.Tesseract;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
