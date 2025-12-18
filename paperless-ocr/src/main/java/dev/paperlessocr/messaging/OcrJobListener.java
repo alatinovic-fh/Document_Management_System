@@ -5,10 +5,12 @@ import dev.paperlessocr.services.ocr.impl.FileStorageService;
 import dev.paperlessocr.services.ocr.impl.TesseractOcrService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.sourceforge.tess4j.TesseractException;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 
 import static dev.paperlessocr.config.RabbitConfig.OCR_JOB_QUEUE;
@@ -39,19 +41,15 @@ public class OcrJobListener {
             File tempFile = tesseractOcrService.createTempFile(msg.getOriginalFilename(), is);
 
             String text = tesseractOcrService.doOcr(tempFile);
-            log.info("OCR-Ergebnis: {}", text);
+            log.info("OCR Task completed for file {}", msg.getOriginalFilename());
             String aiSummary = genAIService.createSummary(text);
             log.info("Summary: {}", aiSummary);
             OcrResultMessage result = new OcrResultMessage(msg.getDocumentId(), text, true, null, aiSummary);
             resultPublisher.sendResult(result);
-        }catch (Exception e){
+        }catch (TesseractException | IOException e) {
             log.error("Fehler beim OCR-Vorgang: {}", e.getMessage());
             OcrResultMessage result = new OcrResultMessage(msg.getDocumentId(), null, false, e.getMessage(), null);
             resultPublisher.sendResult(result);
-
-
         }
-
-
     }
 }

@@ -3,6 +3,7 @@ package dev.paperlessocr.services.ocr.impl;
 import dev.paperlessocr.services.ocr.OcrService;
 import dev.paperlessocr.services.TesseractFactory;
 import net.sourceforge.tess4j.Tesseract;
+import net.sourceforge.tess4j.TesseractException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -22,7 +23,7 @@ public class TesseractOcrService implements OcrService {
     }
 
     @Override
-    public String doOcr(File tempFile) throws Exception {
+    public String doOcr(File tempFile) throws TesseractException {
         Tesseract tesseract = tesseractFactory.create();
         return tesseract.doOCR(tempFile);
     }

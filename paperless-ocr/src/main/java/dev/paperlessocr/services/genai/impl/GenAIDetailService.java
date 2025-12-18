@@ -23,7 +23,7 @@ public class GenAIDetailService implements GenAIService {
     public String createSummary(String content) {
         String prompt = String.format(SUMMARY_PROMPT, content);
 
-        log.info("Sending prompt to genai");
+        log.info("Sending summary request to gemini");
         Client client = new Client.Builder().apiKey(this.apiKey).build();
 
         GenerateContentResponse response =

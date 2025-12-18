@@ -18,14 +18,11 @@ public class OcrResultListener {
     @RabbitListener(queues = OCR_RESULT_QUEUE)
     public void handleOcrResult(OcrResultMessage msg) {
         if (msg.isSuccess()) {
-            log.info("OCR-Ergebnis empfangen für documentId {}: {}",
-                    msg.getDocumentId(), msg.getText());
+            log.info("OCR-Ergebnis empfangen für documentId {}", msg.getDocumentId());
             docRepository.updateSummaryById(msg.getDocumentId(), msg.getSummary());
         } else {
             log.warn("OCR fehlgeschlagen für documentId {}: {}",
                     msg.getDocumentId(), msg.getErrorMessage());
         }
-
-        // TODO: auf DB migrieren
     }
 }
