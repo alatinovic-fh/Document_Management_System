@@ -67,7 +67,7 @@
 
           <!-- Body -->
           <n-space vertical size="small">
-            <n-tag type="info" size="small">{{ doc.contentType || 'unbekannt' }}</n-tag>
+            <n-tag type="info" size="small">{{ getExtension(doc.originalFilename)|| 'unbekannt' }}</n-tag>
             <n-text depth="3">Größe: {{ formatBytes(doc.size) }}</n-text>
             <n-text depth="3">Erstellt: {{ doc.uploadDate }}</n-text>
           </n-space>
@@ -240,6 +240,11 @@ function formatBytes (n) {
   let i = 0, v = n
   while (v >= 1024 && i < units.length - 1) { v /= 1024; i++ }
   return `${v.toFixed(v < 10 && i > 0 ? 1 : 0)} ${units[i]}`
+}
+
+function getExtension(filename) {
+  let extension = filename.split('.').pop();
+  return extension;
 }
 
 function formatDate (s) {

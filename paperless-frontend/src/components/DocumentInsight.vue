@@ -2,7 +2,7 @@
   <n-card class="max-w-4xl mx-auto mt-8" title="📄 Dokument Details">
     <n-space vertical size="large" v-if="doc">
       <n-text><strong>Name:</strong> {{ doc.originalFilename }}</n-text>
-      <n-text><strong>Typ:</strong> {{ doc.contentType }}</n-text>
+      <n-text><strong>Typ:</strong> {{ getExtension(doc.originalFilename) }}</n-text>
       <n-text><strong>Größe:</strong> {{ formatBytes(doc.size) }}</n-text>
       <n-text><strong>Erstellt:</strong> {{ formatDate(doc.uploadDate) }}</n-text>
 
@@ -48,5 +48,10 @@ function formatBytes(n) {
 
 function formatDate(d) {
   return new Date(d).toLocaleString()
+}
+
+function getExtension(filename) {
+  let extension = filename.split('.').pop();
+  return extension;
 }
 </script>
