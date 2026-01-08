@@ -34,3 +34,7 @@ export async function downloadDocument(id){
 }
 
 
+export async function searchDocuments(searchText) {
+    const res = await apiClient.get(`/documents/search/${searchText}`);
+    return res.data;
+}

@@ -116,17 +116,20 @@
 import { ref, onMounted, computed } from 'vue'
 import {
   NCard, NGrid, NGridItem, NSpace, NTag, NText, NEmpty, NButton, NSkeleton,
-  NTooltip, NIcon, useDialog, useMessage
+  NTooltip, NIcon, useDialog, useMessage, NModal, NInput
 } from 'naive-ui'
 import { TrashOutline as TrashOutline } from '@vicons/ionicons5'
 import CreateOutline from '@vicons/ionicons5/CreateOutline'
 import ArrowDownCircleSharp from '@vicons/ionicons5/ArrowDownCircleSharp'
-import {listDocuments, deleteDocument, updateDocument, downloadDocument} from '@/api/documents.js'
+import { deleteDocument, updateDocument, downloadDocument} from '@/api/documents.js'
 import { useRouter } from 'vue-router'
+import { useDocumentsStore } from '@/stores/documents'
+import { storeToRefs } from 'pinia'
 
 const router = useRouter()
-const loading = ref(false)
-const documents = ref([])
+const store = useDocumentsStore()
+const { filteredDocuments: documents, loading } = storeToRefs(store)
+
 const deletingId = ref(null)
 const editingDoc = ref(null)
 const newName = ref('')
@@ -145,18 +148,9 @@ const gridCols = computed(() => {
   return 4
 })
 
-async function fetchDocuments () {
-  loading.value = true
-  try {
-    documents.value = await listDocuments()
-    console.log(documents)
-  } catch (e) {
-    console.error(e)
-    message.error(e?.message || 'Fehler beim Laden der Dokumente')
-  } finally {
-    loading.value = false
-  }
-}
+onMounted(() => {
+    store.fetchDocuments()
+})
 
 function goToDetail(doc) {
   router.push(`/detail/${doc.id}`)
@@ -172,8 +166,8 @@ function onClickDelete (doc) {
       deletingId.value = doc.id
       try {
         await deleteDocument(doc.id)
-        // Optimistisch aus der Liste entfernen
-        documents.value = documents.value.filter(d => d.id !== doc.id)
+        // Optimistisch aus der Liste entfernen via Store
+        store.removeDocument(doc.id)
         message.success('Dokument gelöscht')
       } catch (e) {
         console.error(e)
@@ -220,11 +214,14 @@ async function saveEdit() {
   }
   try {
 
-    const updatedDoc = {originalFilename: newName.value }
-    console.log(updatedDoc)
+    const updatedDocMetadata = {originalFilename: newName.value }
+    console.log(updatedDocMetadata)
 
-    await updateDocument(editingDoc.value.id, updatedDoc)
-    editingDoc.value.originalFilename = newName.value
+    const result = await updateDocument(editingDoc.value.id, updatedDocMetadata)
+    
+    // Update store
+    store.updateDocumentLocal(result)
+    
     showEditModal.value = false
 
   } catch (e) {
@@ -252,7 +249,7 @@ function formatDate (s) {
   try { return new Date(s).toLocaleString() } catch { return s }
 }
 
-onMounted(fetchDocuments)
+
 </script>
 
 <style scoped>

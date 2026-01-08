@@ -10,6 +10,9 @@
         </n-layout-header>
 
         <n-layout-content content-style="padding: 2rem;">
+            <div class="search-section">
+                <search-bar />
+            </div>
           <router-view />
         </n-layout-content>
       </n-layout>
@@ -26,9 +29,8 @@ import {
   NDialogProvider
 } from "naive-ui";
 
-import DocumentForm from '@/components/DocumentForm.vue'
-import DocumentDetails from '@/components/DocumentDetails.vue'
 import NavBar from '@/components/NavBar.vue'
+import SearchBar from '@/components/SearchBar.vue'
 
 </script>
 
@@ -38,5 +40,8 @@ import NavBar from '@/components/NavBar.vue'
   height: 64px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
 
+}
+.search-section {
+    margin-bottom: 2rem;
 }
 </style>
