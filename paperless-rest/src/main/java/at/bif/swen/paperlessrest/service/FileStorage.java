@@ -5,5 +5,6 @@ public interface FileStorage {
     byte[] download(String filename);
     void delete(String filename);
     void rename(String oldFilename, String newFilename);
+    String getPresignedUrl(String objectKey);
 
 }

@@ -12,4 +12,5 @@ public class DocDto {
     private long size;
     private Date uploadDate;
     private String summary;
+    private java.util.List<ImageDto> images;
 }
