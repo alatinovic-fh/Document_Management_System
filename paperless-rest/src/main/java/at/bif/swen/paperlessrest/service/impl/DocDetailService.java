@@ -8,13 +8,18 @@ import at.bif.swen.paperlessrest.service.DocService;
 import at.bif.swen.paperlessrest.service.exception.DuplicateDocumentNameException;
 import at.bif.swen.paperlessrest.service.exception.NotFoundException;
 import at.bif.swen.paperlessrest.service.messaging.OcrJobPublisher;
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch.core.SearchResponse;
+import co.elastic.clients.elasticsearch.core.search.Hit;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.List;
 import java.sql.Date;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -23,6 +28,7 @@ public class DocDetailService implements DocService {
     private final DocRepository docRepository;
     private final OcrJobPublisher ocrJobPublisher;
     private final FileStorageService fileStorageService;
+    private final ElasticsearchClient elasticsearchClient;
 
     @Transactional
     public Document create(Document document, byte[] content) {
@@ -78,20 +84,34 @@ public class DocDetailService implements DocService {
 
     }
 
-    /**
-     * DUMMY METHOD WILL BE IMPLEMENTED IN FUTURE SPRINTS
-     * ElasticSearch etc.
-     *
-     * @param text
-     * @return
-     */
-    public List<Document> search(String text) {
-        return null;
+
+    public List<Document> searchDocuments(String searchTerm) {
+        try {
+            SearchResponse<Document> response = elasticsearchClient.search(s -> s
+                            .index("documents")
+                            .query(q -> q
+                                    .multiMatch(m -> m
+                                            .fields("originalFilename", "summary", "content")
+                                            .query(searchTerm)
+                                            .fuzziness("AUTO")
+                                    )
+                                ),
+                        Document.class
+            );
+
+            return response.hits().hits().stream()
+                    .map(Hit::source)
+                    .filter(java.util.Objects::nonNull)
+                    .collect(Collectors.toList());
+        } catch (IOException e) {
+            log.error("Error searching documents in Elasticsearch", e);
+            return List.of();
+        }
     }
+
 
     public byte[] download(long id) {
         Document doc = docRepository.findById(id).orElseThrow(() -> new NotFoundException("Document not found: " + id));
         return fileStorageService.download(doc.getOriginalFilename());
     }
 }
-
