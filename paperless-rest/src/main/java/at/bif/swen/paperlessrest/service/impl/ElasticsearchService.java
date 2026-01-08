@@ -6,6 +6,7 @@ import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.Result;
 import co.elastic.clients.elasticsearch.core.DeleteResponse;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
+import co.elastic.clients.elasticsearch.core.UpdateResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -72,6 +74,29 @@ public class ElasticsearchService {
 
         } catch (Exception e) {
             log.error("Failed to delete document {} from Elasticsearch: {}", documentId, e.getMessage());
+            return false;
+        }
+    }
+
+    public boolean updateDocumentTitle(Long documentId, String newTitle) {
+        try {
+            UpdateResponse<DocumentSearchDto> response = elasticsearchClient.update(u -> u
+                            .index(INDEX_NAME)
+                            .id(String.valueOf(documentId))
+                            .doc(Map.of("originalFilename", newTitle)),
+                    DocumentSearchDto.class
+            );
+
+            boolean updated = response.result() == Result.Updated;
+            if (updated) {
+                log.info("Document {} title updated in Elasticsearch to '{}'", documentId, newTitle);
+            } else {
+                log.warn("Document {} not found in Elasticsearch for update", documentId);
+            }
+            return updated;
+
+        } catch (Exception e) {
+            log.error("Failed to update document {} title in Elasticsearch: {}", documentId, e.getMessage());
             return false;
         }
     }

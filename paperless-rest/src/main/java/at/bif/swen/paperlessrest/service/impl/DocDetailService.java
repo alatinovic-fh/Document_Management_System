@@ -72,7 +72,9 @@ public class DocDetailService implements DocService {
         toUpdate.setOriginalFilename(updateDocument.getOriginalFilename());
 
 
-        return docRepository.save(toUpdate);
+        Document updated = docRepository.save(toUpdate);
+        elasticsearchService.updateDocumentTitle(id, updated.getOriginalFilename());
+        return updated;
     }
 
     @Transactional

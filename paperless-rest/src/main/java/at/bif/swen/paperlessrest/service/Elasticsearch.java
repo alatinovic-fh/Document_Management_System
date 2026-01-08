@@ -6,4 +6,5 @@ public interface Elasticsearch {
 
     boolean deleteDocument(long documentId);
     List<Long> searchDocuments(String searchTerm);
+    boolean updateDocument(long documentId, String newTitle);
 }
