@@ -8,6 +8,7 @@ import dev.paperlessocr.config.ElasticsearchConfig;
 import dev.paperlessocr.messaging.Document;
 import dev.paperlessocr.services.ocr.SearchIndexService;
 import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import co.elastic.clients.elasticsearch._types.Result;
@@ -19,6 +20,7 @@ import java.util.Optional;
 
 
 @Component
+@Slf4j
 public class ElasticsearchService implements SearchIndexService {
     private final ElasticsearchClient esClient;
 
@@ -40,10 +42,10 @@ public class ElasticsearchService implements SearchIndexService {
                         .create(c -> c.index(ElasticsearchConfig.DOCUMENTS_INDEX_NAME));
 
             } else {
-                System.out.println("Elasticsearch index already exists");
+                log.info("Elasticsearch index already exists");
             }
         } catch (Exception e) {
-            System.out.println("Elasticsearch index already exists");
+            log.info("Elasticsearch index doesnt work exists");
         }
     }
 
@@ -56,12 +58,11 @@ public class ElasticsearchService implements SearchIndexService {
                 .document(document)
         );
 
-        String logMsg = "Indexed document " + document.getId() + ": result=" + response.result();
 
-        if (response.result() != Result.Created && response.result() != Result.Updated) {
-            System.out.println("Elasticsearch index created");
+        if (response.result() == Result.Created || response.result() == Result.Updated) {
+            log.info("Document {} indexed successfully ({})", document.getId(), response.result());
         } else {
-            System.out.println("Elasticsearch index created");
+            log.warn("Unexpected indexing result for document {}: {}", document.getId(), response.result());
         }
         return response.result();
     }
@@ -76,7 +77,7 @@ public class ElasticsearchService implements SearchIndexService {
             );
             return (response.found() && response.source() != null) ? Optional.of(response.source()) : Optional.empty();
         } catch (IOException e) {
-            System.out.println("Elasticsearch index created");
+            log.info("oh index already exists");
             return Optional.empty();
         }
     }
@@ -90,7 +91,7 @@ public class ElasticsearchService implements SearchIndexService {
             );
             return result.result() == Result.Deleted;
         } catch (IOException e) {
-            System.out.println("Elasticsearch index created");
+            log.info("doest work index already exists");
             return false;
         }
     }

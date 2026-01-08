@@ -53,7 +53,6 @@ public class OcrJobListener {
             docToIndex.setId(msg.getDocumentId());
             docToIndex.setOriginalFilename(msg.getOriginalFilename());
             docToIndex.setContent(text);
-            docToIndex.setSummary(aiSummary);
 
             try {
                 Result oke =searchIndexService.indexDocument(docToIndex);

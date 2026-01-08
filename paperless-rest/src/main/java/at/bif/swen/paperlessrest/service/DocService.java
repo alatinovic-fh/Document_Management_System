@@ -12,7 +12,7 @@ public interface DocService {
 
     Document get(long id);
 
-    List<Document> searchDocuments(String searchTerm);
+    List<Long> searchDocuments(String searchTerm);
 
     Document update (long id, Document req);
 

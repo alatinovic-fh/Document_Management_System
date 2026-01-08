@@ -21,6 +21,8 @@ services:
       - rabbitmq
       - minio
     restart: unless-stopped
+    networks:
+      - elastic
 
   ocr-worker:
     build: ./paperless-ocr
@@ -38,6 +40,8 @@ services:
       - minio
       - rabbitmq
     restart: unless-stopped
+    networks:
+      - elastic
 
   rabbitmq:
     image: rabbitmq:3-management
@@ -49,6 +53,8 @@ services:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
     restart: unless-stopped
+    networks:
+      - elastic
 
   db:
     image: postgres
@@ -62,6 +68,8 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql
     restart: unless-stopped
+    networks:
+      - elastic
 
   frontend:
     build: ./paperless-frontend
@@ -71,6 +79,8 @@ services:
     depends_on:
       - app
     restart: unless-stopped
+    networks:
+      - elastic
 
   minio:
     image: minio/minio
@@ -83,6 +93,8 @@ services:
       - "9090:9090"
     volumes:
       - minio-storage:/data
+    networks:
+      - elastic
 
 
   elasticsearch:
@@ -94,7 +106,7 @@ services:
       - xpack.security.enabled=false
       - discovery.type=single-node
     volumes:
-      - elasticsearch-data:/usr/share/elasticsearch/data
+      - elasticsearch-data:/data
     networks:
       - elastic
 

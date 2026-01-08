@@ -9,6 +9,7 @@ import at.bif.swen.paperlessrest.service.impl.DocDetailService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +24,7 @@ import java.util.List;
 @RequestMapping("/api/v1/documents")
 @RequiredArgsConstructor
 @Validated
+@Slf4j
 public class DocController {
 
     private final DocDetailService docDetailService;
@@ -97,15 +99,14 @@ public class DocController {
     }
 
     @GetMapping("/search/{searchText}")
-    public ResponseEntity<List<DocDto>> searchDocuments(@PathVariable String searchText) {
+    public ResponseEntity<List<Long>> searchDocuments(@PathVariable String searchText) {
         try {
-            List<DocDto> body = docMapper.toDtoList(docDetailService.searchDocuments(searchText));
+            List<Long> ids = docDetailService.searchDocuments(searchText);
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)
-                    .body(body);
-        }catch (Exception e) {
+                    .body(ids);
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-
     }
 }

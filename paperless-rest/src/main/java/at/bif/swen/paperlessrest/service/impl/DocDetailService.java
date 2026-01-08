@@ -3,6 +3,7 @@ package at.bif.swen.paperlessrest.service.impl;
 import at.bif.swen.paperlessrest.controller.request.CreateDocRequest;
 import at.bif.swen.paperlessrest.controller.request.UpdateDocRequest;
 import at.bif.swen.paperlessrest.persistence.entity.Document;
+import at.bif.swen.paperlessrest.persistence.entity.DocumentSearchDto;
 import at.bif.swen.paperlessrest.persistence.repository.DocRepository;
 import at.bif.swen.paperlessrest.service.DocService;
 import at.bif.swen.paperlessrest.service.exception.DuplicateDocumentNameException;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.List;
 import java.sql.Date;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -28,7 +30,7 @@ public class DocDetailService implements DocService {
     private final DocRepository docRepository;
     private final OcrJobPublisher ocrJobPublisher;
     private final FileStorageService fileStorageService;
-    private final ElasticsearchClient elasticsearchClient;
+    private final ElasticsearchService elasticsearchService;
 
     @Transactional
     public Document create(Document document, byte[] content) {
@@ -80,33 +82,18 @@ public class DocDetailService implements DocService {
         }
         String filename = docRepository.findById(id).get().getOriginalFilename();
         fileStorageService.delete(filename);
+
         docRepository.deleteById(id);
+        elasticsearchService.deleteDocument(id);
+
+        log.info("Document {} deleted from database and search index", id);
+
 
     }
 
 
-    public List<Document> searchDocuments(String searchTerm) {
-        try {
-            SearchResponse<Document> response = elasticsearchClient.search(s -> s
-                            .index("documents")
-                            .query(q -> q
-                                    .multiMatch(m -> m
-                                            .fields("originalFilename", "summary", "content")
-                                            .query(searchTerm)
-                                            .fuzziness("AUTO")
-                                    )
-                                ),
-                        Document.class
-            );
-
-            return response.hits().hits().stream()
-                    .map(Hit::source)
-                    .filter(java.util.Objects::nonNull)
-                    .collect(Collectors.toList());
-        } catch (IOException e) {
-            log.error("Error searching documents in Elasticsearch", e);
-            return List.of();
-        }
+    public List<Long> searchDocuments(String searchTerm) {
+        return elasticsearchService.searchDocuments(searchTerm);
     }
 
 
