@@ -5,6 +5,7 @@ import at.bif.swen.paperlessrest.config.MinIOConfig;
 import at.bif.swen.paperlessrest.service.FileStorage;
 import io.minio.*;
 import io.minio.errors.*;
+import io.minio.http.Method;
 import jakarta.validation.constraints.Min;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
@@ -107,6 +108,22 @@ public class FileStorageService implements FileStorage {
             log.error("Error occurred: " + e);
         } catch (IOException | NoSuchAlgorithmException | InvalidKeyException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public String getPresignedUrl(String objectKey) {
+        try {
+            return minioClient.getPresignedObjectUrl(
+                    GetPresignedObjectUrlArgs.builder()
+                            .method(Method.GET)
+                            .bucket(minIOConfig.getBucketName())
+                            .object(objectKey)
+                            .expiry(60 * 10) // 10 Minuten
+                            .build()
+            );
+        } catch (Exception e) {
+            throw new RuntimeException("Could not create presigned URL", e);
         }
     }
 
