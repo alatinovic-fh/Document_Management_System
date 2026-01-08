@@ -1,16 +1,16 @@
 package dev.paperlessocr.messaging;
 
+import co.elastic.clients.elasticsearch._types.Result;
 import dev.paperlessocr.services.genai.GenAIService;
+import dev.paperlessocr.services.ocr.SearchIndexService;
 import dev.paperlessocr.services.ocr.impl.FileStorageService;
 import dev.paperlessocr.services.ocr.impl.TesseractOcrService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.sourceforge.tess4j.TesseractException;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 
 import static dev.paperlessocr.config.RabbitConfig.OCR_JOB_QUEUE;
@@ -24,6 +24,7 @@ public class OcrJobListener {
     private final FileStorageService fileStorageService;
     private final TesseractOcrService tesseractOcrService;
     private final GenAIService genAIService;
+    private final SearchIndexService searchIndexService;
 
     @RabbitListener(queues = OCR_JOB_QUEUE)
     public void handleOcrJob(OcrJobMessage msg) {
@@ -31,10 +32,9 @@ public class OcrJobListener {
         log.info("OCR-Job empfangen: documentId={}, filename={}, bytes={}",
                 msg.getDocumentId(),
                 msg.getOriginalFilename(),
-                msg.getContent() != null ? msg.getContent().length : 0
-        );
+                msg.getContent() != null ? msg.getContent().length : 0);
 
-        try{
+        try {
             InputStream is = fileStorageService.getFile(msg.getOriginalFilename());
             log.info("Datei gefunden: {}", msg.getOriginalFilename());
 
@@ -44,9 +44,22 @@ public class OcrJobListener {
             log.info("OCR Task completed for file {}", msg.getOriginalFilename());
             String aiSummary = genAIService.createSummary(text);
             log.info("Summary: {}", aiSummary);
+
+            Document docToIndex = new Document();
+            docToIndex.setId(msg.getDocumentId());
+            docToIndex.setOriginalFilename(msg.getOriginalFilename());
+            docToIndex.setContent(text);
+
+            try {
+                Result oke = searchIndexService.indexDocument(docToIndex);
+                log.info("Document indexed successfully {}", oke);
+            } catch (Exception e) {
+                log.error("Failed to index document {}: {}", msg.getDocumentId(), e.getMessage());
+            }
+
             OcrResultMessage result = new OcrResultMessage(msg.getDocumentId(), text, true, null, aiSummary);
             resultPublisher.sendResult(result);
-        }catch (TesseractException | IOException e) {
+        } catch (Exception e) {
             log.error("Fehler beim OCR-Vorgang: {}", e.getMessage());
             OcrResultMessage result = new OcrResultMessage(msg.getDocumentId(), null, false, e.getMessage(), null);
             resultPublisher.sendResult(result);

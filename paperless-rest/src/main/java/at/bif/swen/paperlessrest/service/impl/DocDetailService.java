@@ -3,18 +3,25 @@ package at.bif.swen.paperlessrest.service.impl;
 import at.bif.swen.paperlessrest.controller.request.CreateDocRequest;
 import at.bif.swen.paperlessrest.controller.request.UpdateDocRequest;
 import at.bif.swen.paperlessrest.persistence.entity.Document;
+import at.bif.swen.paperlessrest.persistence.entity.DocumentSearchDto;
 import at.bif.swen.paperlessrest.persistence.repository.DocRepository;
 import at.bif.swen.paperlessrest.service.DocService;
 import at.bif.swen.paperlessrest.service.exception.DuplicateDocumentNameException;
 import at.bif.swen.paperlessrest.service.exception.NotFoundException;
 import at.bif.swen.paperlessrest.service.messaging.OcrJobPublisher;
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch.core.SearchResponse;
+import co.elastic.clients.elasticsearch.core.search.Hit;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.List;
 import java.sql.Date;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -23,6 +30,7 @@ public class DocDetailService implements DocService {
     private final DocRepository docRepository;
     private final OcrJobPublisher ocrJobPublisher;
     private final FileStorageService fileStorageService;
+    private final ElasticsearchService elasticsearchService;
 
     @Transactional
     public Document create(Document document, byte[] content) {
@@ -64,7 +72,9 @@ public class DocDetailService implements DocService {
         toUpdate.setOriginalFilename(updateDocument.getOriginalFilename());
 
 
-        return docRepository.save(toUpdate);
+        Document updated = docRepository.save(toUpdate);
+        elasticsearchService.updateDocumentTitle(id, updated.getOriginalFilename());
+        return updated;
     }
 
     @Transactional
@@ -74,24 +84,23 @@ public class DocDetailService implements DocService {
         }
         String filename = docRepository.findById(id).get().getOriginalFilename();
         fileStorageService.delete(filename);
+
         docRepository.deleteById(id);
+        elasticsearchService.deleteDocument(id);
+
+        log.info("Document {} deleted from database and search index", id);
+
 
     }
 
-    /**
-     * DUMMY METHOD WILL BE IMPLEMENTED IN FUTURE SPRINTS
-     * ElasticSearch etc.
-     *
-     * @param text
-     * @return
-     */
-    public List<Document> search(String text) {
-        return null;
+
+    public List<Long> searchDocuments(String searchTerm) {
+        return elasticsearchService.searchDocuments(searchTerm);
     }
+
 
     public byte[] download(long id) {
         Document doc = docRepository.findById(id).orElseThrow(() -> new NotFoundException("Document not found: " + id));
         return fileStorageService.download(doc.getOriginalFilename());
     }
 }
-

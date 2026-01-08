@@ -1,6 +1,7 @@
 package at.bif.swen.paperlessrest.persistence.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -31,4 +32,6 @@ public class Document {
 
     @Column(columnDefinition = "TEXT")
     private String summary;
+
+
 }
