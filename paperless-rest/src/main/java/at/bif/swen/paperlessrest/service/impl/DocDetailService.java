@@ -40,7 +40,7 @@ public class DocDetailService implements DocService {
     @Transactional
     public Document create(Document document, byte[] content) {
 
-        if(docRepository.existsByOriginalFilename(document.getOriginalFilename())) {
+        if (docRepository.existsByOriginalFilename(document.getOriginalFilename())) {
             throw new DuplicateDocumentNameException(document.getOriginalFilename());
         }
 
@@ -48,9 +48,7 @@ public class DocDetailService implements DocService {
 
         fileStorageService.upload(saved.getOriginalFilename(), content);
 
-
-        List<Image> images =
-                imageExtractionDetailService.extractAndStore(content, saved);
+        List<Image> images = imageExtractionDetailService.extractAndStore(content, saved);
 
         saved.getImages().addAll(images);
 
@@ -59,18 +57,19 @@ public class DocDetailService implements DocService {
         return docRepository.save(saved);
     }
 
-
     public Document get(long id) {
         return docRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Document not found: " + id));
     }
 
-    public List<Document> list() { return docRepository.findAll(); }
+    public List<Document> list() {
+        return docRepository.findAll();
+    }
 
     @Transactional
     public Document update(long id, Document updateDocument) {
 
-        if(docRepository.existsByOriginalFilename(updateDocument.getOriginalFilename())) {
+        if (docRepository.existsByOriginalFilename(updateDocument.getOriginalFilename())) {
             log.info("Document with name {} already exists. Updating...", updateDocument.getOriginalFilename());
             throw new DuplicateDocumentNameException(updateDocument.getOriginalFilename());
 
@@ -82,7 +81,6 @@ public class DocDetailService implements DocService {
 
         fileStorageService.rename(toUpdate.getOriginalFilename(), updateDocument.getOriginalFilename());
         toUpdate.setOriginalFilename(updateDocument.getOriginalFilename());
-
 
         Document updated = docRepository.save(toUpdate);
         elasticsearchService.updateDocumentTitle(id, updated.getOriginalFilename());
@@ -97,19 +95,22 @@ public class DocDetailService implements DocService {
         String filename = docRepository.findById(id).get().getOriginalFilename();
         fileStorageService.delete(filename);
 
+        // delete images form minio
+        List<Image> images = docRepository.findById(id).get().getImages();
+        for (Image image : images) {
+            fileStorageService.delete(image.getObjectKey());
+        }
+
         docRepository.deleteById(id);
         elasticsearchService.deleteDocument(id);
 
         log.info("Document {} deleted from database and search index", id);
 
-
     }
-
 
     public List<Long> searchDocuments(String searchTerm) {
         return elasticsearchService.searchDocuments(searchTerm);
     }
-
 
     public byte[] download(long id) {
         Document doc = docRepository.findById(id).orElseThrow(() -> new NotFoundException("Document not found: " + id));

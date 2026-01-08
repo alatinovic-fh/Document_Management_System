@@ -10,7 +10,7 @@
 
       <n-text strong>Zusammenfassung</n-text>
 
-      <n-card size="small">
+    <n-card size="small">
         <n-space v-if="isSummaryLoading" align="center">
           <n-spin size="small" />
           <n-text depth="3">
@@ -22,6 +22,23 @@
           {{ doc.summary }}
         </n-text>
       </n-card>
+
+      <n-divider />
+
+      <n-text strong>Bilder</n-text>
+
+      <n-grid x-gap="12" y-gap="12" :cols="3">
+        <n-grid-item v-for="image in doc.images" :key="image.id">
+            <n-image
+              :src="`/api/v1/images/${image.id}`"
+              :alt="`Extracted Image ${image.id}`"
+              object-fit="cover"
+              class="w-full h-auto rounded-lg shadow-sm"
+              :preview-disabled="false"
+            />
+        </n-grid-item>
+      </n-grid>
+      <n-text v-if="!doc.images || doc.images.length === 0" depth="3">Keine Bilder gefunden.</n-text>
     </n-space>
 
     <n-skeleton v-else text :repeat="5" />

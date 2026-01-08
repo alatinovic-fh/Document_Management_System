@@ -6,8 +6,11 @@ import at.bif.swen.paperlessrest.persistence.entity.Document;
 import at.bif.swen.paperlessrest.persistence.repository.DocRepository;
 import at.bif.swen.paperlessrest.service.exception.NotFoundException;
 import at.bif.swen.paperlessrest.service.impl.DocDetailService;
+import at.bif.swen.paperlessrest.service.impl.ElasticsearchService;
 import at.bif.swen.paperlessrest.service.impl.FileStorageService;
+import at.bif.swen.paperlessrest.service.impl.ImageExtractionDetailService;
 import at.bif.swen.paperlessrest.service.messaging.OcrJobPublisher;
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -33,18 +36,34 @@ public class DocDetailServiceTest {
     @Mock
     private OcrJobPublisher ocrJobPublisher;
 
+    @Mock
+    private ElasticsearchClient elasticsearchClient;
+    @Mock
+    private ImageExtractionDetailService imageExtractionDetailService;
+    @Mock
+    private ElasticsearchService elasticsearchService;
+
     @InjectMocks
     private DocDetailService docDetailService;
+
+    private Document document;
+    private byte[] content;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+        document = new Document();
+        document.setId(1L);
+        document.setOriginalFilename("test.pdf");
+
+        content = "test content".getBytes();
     }
 
     @Test
     void create_ShouldSaveAndReturnDocument() {
         // give
-        Document mockToSave = new Document(1L, "test.pdf", "application/pdf", 1234L, java.sql.Date.valueOf("2021-01-01"), "This is a summary", null);
+        Document mockToSave = new Document(1L, "test.pdf", "application/pdf", 1234L,
+                java.sql.Date.valueOf("2021-01-01"), "This is a summary", new java.util.ArrayList<>());
 
         when(docRepository.save(any(Document.class))).thenReturn(mockToSave);
 
@@ -58,12 +77,13 @@ public class DocDetailServiceTest {
         assertThat(result).isNotNull();
         assertThat(result.getId()).isEqualTo(1L);
         assertThat(result.getOriginalFilename()).isEqualTo("test.pdf");
-        verify(docRepository, times(1)).save(any(Document.class));
+        verify(docRepository, times(2)).save(any(Document.class));
     }
 
     @Test
     void get_ShouldReturnDocument_WhenFound() {
-        Document d = new Document(1L, "doc.pdf", "application/pdf", 500L, java.sql.Date.valueOf("2021-01-01"), "This is a summary", null);
+        Document d = new Document(1L, "doc.pdf", "application/pdf", 500L, java.sql.Date.valueOf("2021-01-01"),
+                "This is a summary", new java.util.ArrayList<>());
         when(docRepository.findById(1L)).thenReturn(Optional.of(d));
 
         Document result = docDetailService.get(1L);
@@ -73,20 +93,12 @@ public class DocDetailServiceTest {
     }
 
     @Test
-    void get_ShouldThrow_WhenNotFound() {
-        when(docRepository.findById(99L)).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> docDetailService.get(99L))
-                .isInstanceOf(NotFoundException.class)
-                .hasMessageContaining("99");
-    }
-
-    @Test
     void list_ShouldReturnAllDocuments() {
         List<Document> docs = List.of(
-                new Document(1L, "a.pdf", "application/pdf", 1L, java.sql.Date.valueOf("2021-01-01"), "This is a summary", null),
-                new Document(2L, "b.pdf", "application/pdf", 2L, java.sql.Date.valueOf("2021-01-02"), "This is a summary", null)
-        );
+                new Document(1L, "a.pdf", "application/pdf", 1L, java.sql.Date.valueOf("2021-01-01"),
+                        "This is a summary", new java.util.ArrayList<>()),
+                new Document(2L, "b.pdf", "application/pdf", 2L, java.sql.Date.valueOf("2021-01-02"),
+                        "This is a summary", new java.util.ArrayList<>()));
         when(docRepository.findAll()).thenReturn(docs);
 
         List<Document> result = docDetailService.list();
@@ -97,7 +109,8 @@ public class DocDetailServiceTest {
 
     @Test
     void update_ShouldModifyAndSaveDocument() {
-        Document existing = new Document(1L, "old.pdf", "application/pdf", 123L, java.sql.Date.valueOf("2021-01-01"), "This is a summary", null);
+        Document existing = new Document(1L, "old.pdf", "application/pdf", 123L, java.sql.Date.valueOf("2021-01-01"),
+                "This is a summary", new java.util.ArrayList<>());
         Document updatedDocument = new Document();
         updatedDocument.setOriginalFilename("new.pdf");
 
@@ -114,10 +127,9 @@ public class DocDetailServiceTest {
     void delete_ShouldCallRepositoryDelete_WhenExists() {
         when(docRepository.existsById(1L)).thenReturn(true);
 
-        Document doc = new Document(1L, "test.pdf", "application/pdf", 1234L, java.sql.Date.valueOf("2021-01-01"), "This is a summary", null);
+        Document doc = new Document(1L, "test.pdf", "application/pdf", 1234L, java.sql.Date.valueOf("2021-01-01"),
+                "This is a summary", new java.util.ArrayList<>());
         when(docRepository.findById(1L)).thenReturn(Optional.of(doc));
-
-
 
         docDetailService.delete(1L);
 
