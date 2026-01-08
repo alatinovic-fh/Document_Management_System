@@ -1,5 +1,4 @@
-package dev.paperlessocr.messaging;
-
+package at.bif.swen.paperlessrest.persistence.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,8 +9,9 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Document {
-    private long id;
+public class DocumentSearchDto {
+    private Long id;
     private String originalFilename;
     private String content;
+
 }

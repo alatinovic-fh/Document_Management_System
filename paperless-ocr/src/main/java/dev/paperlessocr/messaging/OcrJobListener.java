@@ -7,13 +7,10 @@ import dev.paperlessocr.services.ocr.impl.FileStorageService;
 import dev.paperlessocr.services.ocr.impl.TesseractOcrService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.sourceforge.tess4j.TesseractException;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
 
-import javax.print.Doc;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 
 import static dev.paperlessocr.config.RabbitConfig.OCR_JOB_QUEUE;
@@ -35,10 +32,9 @@ public class OcrJobListener {
         log.info("OCR-Job empfangen: documentId={}, filename={}, bytes={}",
                 msg.getDocumentId(),
                 msg.getOriginalFilename(),
-                msg.getContent() != null ? msg.getContent().length : 0
-        );
+                msg.getContent() != null ? msg.getContent().length : 0);
 
-        try{
+        try {
             InputStream is = fileStorageService.getFile(msg.getOriginalFilename());
             log.info("Datei gefunden: {}", msg.getOriginalFilename());
 
@@ -53,19 +49,17 @@ public class OcrJobListener {
             docToIndex.setId(msg.getDocumentId());
             docToIndex.setOriginalFilename(msg.getOriginalFilename());
             docToIndex.setContent(text);
-            docToIndex.setSummary(aiSummary);
 
             try {
-                Result oke =searchIndexService.indexDocument(docToIndex);
+                Result oke = searchIndexService.indexDocument(docToIndex);
                 log.info("Document indexed successfully {}", oke);
             } catch (Exception e) {
                 log.error("Failed to index document {}: {}", msg.getDocumentId(), e.getMessage());
             }
 
-
             OcrResultMessage result = new OcrResultMessage(msg.getDocumentId(), text, true, null, aiSummary);
             resultPublisher.sendResult(result);
-        }catch (TesseractException | IOException e) {
+        } catch (Exception e) {
             log.error("Fehler beim OCR-Vorgang: {}", e.getMessage());
             OcrResultMessage result = new OcrResultMessage(msg.getDocumentId(), null, false, e.getMessage(), null);
             resultPublisher.sendResult(result);
