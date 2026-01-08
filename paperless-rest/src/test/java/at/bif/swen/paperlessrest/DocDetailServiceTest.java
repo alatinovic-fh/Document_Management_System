@@ -44,7 +44,7 @@ public class DocDetailServiceTest {
     @Test
     void create_ShouldSaveAndReturnDocument() {
         // give
-        Document mockToSave = new Document(1L, "test.pdf", "application/pdf", 1234L, java.sql.Date.valueOf("2021-01-01"), "This is a summary");
+        Document mockToSave = new Document(1L, "test.pdf", "application/pdf", 1234L, java.sql.Date.valueOf("2021-01-01"), "This is a summary", null);
 
         when(docRepository.save(any(Document.class))).thenReturn(mockToSave);
 
@@ -63,7 +63,7 @@ public class DocDetailServiceTest {
 
     @Test
     void get_ShouldReturnDocument_WhenFound() {
-        Document d = new Document(1L, "doc.pdf", "application/pdf", 500L, java.sql.Date.valueOf("2021-01-01"), "This is a summary");
+        Document d = new Document(1L, "doc.pdf", "application/pdf", 500L, java.sql.Date.valueOf("2021-01-01"), "This is a summary", null);
         when(docRepository.findById(1L)).thenReturn(Optional.of(d));
 
         Document result = docDetailService.get(1L);
@@ -84,8 +84,8 @@ public class DocDetailServiceTest {
     @Test
     void list_ShouldReturnAllDocuments() {
         List<Document> docs = List.of(
-                new Document(1L, "a.pdf", "application/pdf", 1L, java.sql.Date.valueOf("2021-01-01"), "This is a summary"),
-                new Document(2L, "b.pdf", "application/pdf", 2L, java.sql.Date.valueOf("2021-01-02"), "This is a summary")
+                new Document(1L, "a.pdf", "application/pdf", 1L, java.sql.Date.valueOf("2021-01-01"), "This is a summary", null),
+                new Document(2L, "b.pdf", "application/pdf", 2L, java.sql.Date.valueOf("2021-01-02"), "This is a summary", null)
         );
         when(docRepository.findAll()).thenReturn(docs);
 
@@ -97,7 +97,7 @@ public class DocDetailServiceTest {
 
     @Test
     void update_ShouldModifyAndSaveDocument() {
-        Document existing = new Document(1L, "old.pdf", "application/pdf", 123L, java.sql.Date.valueOf("2021-01-01"), "This is a summary");
+        Document existing = new Document(1L, "old.pdf", "application/pdf", 123L, java.sql.Date.valueOf("2021-01-01"), "This is a summary", null);
         Document updatedDocument = new Document();
         updatedDocument.setOriginalFilename("new.pdf");
 
@@ -114,7 +114,7 @@ public class DocDetailServiceTest {
     void delete_ShouldCallRepositoryDelete_WhenExists() {
         when(docRepository.existsById(1L)).thenReturn(true);
 
-        Document doc = new Document(1L, "test.pdf", "application/pdf", 1234L, java.sql.Date.valueOf("2021-01-01"), "This is a summary");
+        Document doc = new Document(1L, "test.pdf", "application/pdf", 1234L, java.sql.Date.valueOf("2021-01-01"), "This is a summary", null);
         when(docRepository.findById(1L)).thenReturn(Optional.of(doc));
 
 

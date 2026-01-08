@@ -3,6 +3,7 @@ package at.bif.swen.paperlessrest.service.impl;
 import at.bif.swen.paperlessrest.controller.request.CreateDocRequest;
 import at.bif.swen.paperlessrest.controller.request.UpdateDocRequest;
 import at.bif.swen.paperlessrest.persistence.entity.Document;
+import at.bif.swen.paperlessrest.persistence.entity.Image;
 import at.bif.swen.paperlessrest.persistence.repository.DocRepository;
 import at.bif.swen.paperlessrest.service.DocService;
 import at.bif.swen.paperlessrest.service.exception.DuplicateDocumentNameException;
@@ -10,9 +11,11 @@ import at.bif.swen.paperlessrest.service.exception.NotFoundException;
 import at.bif.swen.paperlessrest.service.messaging.OcrJobPublisher;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.List;
 import java.sql.Date;
 
@@ -23,22 +26,31 @@ public class DocDetailService implements DocService {
     private final DocRepository docRepository;
     private final OcrJobPublisher ocrJobPublisher;
     private final FileStorageService fileStorageService;
+    private final ImageExtractionDetailService imageExtractionDetailService;
 
+    @SneakyThrows
     @Transactional
     public Document create(Document document, byte[] content) {
 
-        if(docRepository.existsByOriginalFilename(document.getOriginalFilename())) {
+        if (docRepository.existsByOriginalFilename(document.getOriginalFilename())) {
             throw new DuplicateDocumentNameException(document.getOriginalFilename());
         }
 
         Document saved = docRepository.save(document);
 
         fileStorageService.upload(saved.getOriginalFilename(), content);
-        System.out.println(saved.getOriginalFilename());
+
+
+        List<Image> images =
+                imageExtractionDetailService.extractAndStore(content, saved);
+
+        saved.getImages().addAll(images);
+
         ocrJobPublisher.sendOcrJob(saved, content);
 
-        return saved;
+        return docRepository.save(saved);
     }
+
 
     public Document get(long id) {
         return docRepository.findById(id)
