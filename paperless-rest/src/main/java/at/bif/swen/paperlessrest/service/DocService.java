@@ -12,11 +12,13 @@ public interface DocService {
 
     Document get(long id);
 
-    List<Document> search(String title);
+    List<Document> searchDocuments(String searchTerm);
 
     Document update (long id, Document req);
 
     void delete(long id);
 
     byte[] download(long id);
+
+
 }

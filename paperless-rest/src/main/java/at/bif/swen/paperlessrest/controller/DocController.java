@@ -97,13 +97,15 @@ public class DocController {
     }
 
     @GetMapping("/search/{searchText}")
-    /**
-     * NO RESPONSE FUNCTIONALITY IN FUTURE SPRINT
-     */
     public ResponseEntity<List<DocDto>> searchDocuments(@PathVariable String searchText) {
-        List<DocDto> body = docMapper.toDtoList(docDetailService.search(searchText));
-        return ResponseEntity.ok()
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(body);
+        try {
+            List<DocDto> body = docMapper.toDtoList(docDetailService.searchDocuments(searchText));
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(body);
+        }catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+
     }
 }
