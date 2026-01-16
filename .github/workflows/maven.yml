@@ -27,7 +27,11 @@ jobs:
         java-version: '21'
         distribution: 'temurin'
         cache: maven
-    - name: Run Unit Tests with Maven
+    - name: Run Unit Tests for Rest
+      working-directory: ./paperless-rest
+      run: mvn clean test
+    - name: Run Unit Test for Ocr
+      working-directory: ./paperless-ocr
       run: mvn clean test
 
   
