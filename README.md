@@ -13,12 +13,23 @@ docker compose build
 docker compose up
 ```
 
+## Integration Tests
+
+The project includes integration tests to verify the document upload functionality.
+
+### Running the tests
+```bash
+# Windows
+.\mvnw.cmd -Dtest=DocControllerIT test
+
+# Linux / macOS
+./mvnw -Dtest=DocControllerIT test
+```
+
 ## Branching
 * new feature: feature/{newFeatureName}
 * fixing errors/bugs: fix/{whatIsFixed}
 * everythingelse: chore/{taskPerformed}
-
-
 
 ## Use Case
 
