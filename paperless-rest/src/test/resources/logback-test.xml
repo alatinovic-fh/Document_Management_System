@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/base.xml"/>
+
+    <!-- Suppress RabbitMQ shutdown noise -->
+    <logger name="org.springframework.amqp.rabbit" level="ERROR"/>
+    <logger name="org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer" level="OFF"/>
+    <logger name="com.rabbitmq.client" level="ERROR"/>
+
+    <!-- Keep root logger at INFO -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+</configuration>
