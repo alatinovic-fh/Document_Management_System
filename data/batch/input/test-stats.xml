@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<access_statistics>
+    <record>
+        <document_id>1001</document_id>
+        <access_count>5</access_count>
+        <source_system_id>REST</source_system_id>
+        <processing_date>2026-01-18T10:00:00</processing_date>
+    </record>
+    <record>
+        <document_id>1002</document_id>
+        <access_count>12</access_count>
+        <source_system_id>TEST</source_system_id>
+        <processing_date>2026-01-18T10:05:00</processing_date>
+    </record>
+    <record>
+        <document_id>1001</document_id>
+        <access_count>3</access_count>
+        <source_system_id>OCR</source_system_id>
+        <processing_date>2026-01-18T11:00:00</processing_date>
+    </record>
+</access_statistics>
