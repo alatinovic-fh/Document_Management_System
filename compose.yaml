@@ -24,6 +24,25 @@ services:
     networks:
       - elastic
 
+  paperless-batch:
+    build: ./paperless-batch
+    container_name: paperless-batch
+    environment:
+      spring.datasource.url: jdbc:postgresql://db:5432/metadb
+      spring.datasource.username: postgres
+      spring.datasource.password: postgres
+      # Map internal paths to external volumes
+      paperless.batch.input-dir: /data/input
+      paperless.batch.archive-dir: /data/archive
+    volumes:
+      - ./data/batch/input:/data/input
+      - ./data/batch/archive:/data/archive
+    depends_on:
+      - db
+    restart: unless-stopped
+    networks:
+      - elastic
+
   ocr-worker:
     build: ./paperless-ocr
     container_name: paperless-ocr
