@@ -33,5 +33,7 @@ jobs:
     - name: Run Unit Test for Ocr
       working-directory: ./paperless-ocr
       run: mvn clean test
+    - name: Run Checkstyle (Java Linter)
+      run: mvn checkstyle:check
 
   
